@@ -3,49 +3,39 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-public class topologicalSort {
+public class TopologicalSorting {
+    public int[] topolo(int n, int[][] edges){
+        List<List<Integer>> graph = new ArrayList<>();
+        for (int i = 0; i <= n; i++){
+            graph.add(new ArrayList<>());
+        }
+        int[] indegree = new int[n+1];
+        for (int i = 0; i < edges.length; i++){
+            graph.get(edges[i][0]).add(edges[i][1]);
+            indegree[edges[i][1]] += 1;
+        }
 
-    public static void main(String[] args) {
-        int[][] arr = {
-                {3,8},
-                {3,2},
-                {5,2},
-                {5,9},
-                {4,6},
-                {2,8},
-                {2,1},
-                {2,9},
-                {1,8},
-                {8,9},
-                {9,7},
-        };
-        List<List<Integer>> t = new ArrayList<>();
-        int[] cnt = new int[10];
-        for (int i = 0; i < 10; i++){
-            t.add(new ArrayList<>());
-        }
-        for (int i = 0; i < 11; i++){
-            t.get(arr[i][0]).add(arr[i][1]);
-            cnt[arr[i][1]] += 1;
-        }
         Queue<Integer> q = new LinkedList<>();
-        for (int i = 1; i < 10; i++){
-            if (cnt[i] == 0){
+        for (int i = 1; i <= n; i++){
+            if (indegree[i] == 0){
                 q.add(i);
-                cnt[i] = -1;
+                indegree[i] = -1;
             }
         }
+        List<Integer> ans = new ArrayList<>();
         while(!q.isEmpty()){
-            Integer n = q.poll();
-            System.out.print(n+"-");
-            List<Integer> integers = t.get(n);
-            for (Integer integer : integers) {
-                cnt[integer]--;
-                if (cnt[integer] == 0){
-                    q.add(integer);
-                    cnt[integer] = -1;
+            Integer number = q.poll();
+            ans.add(number);
+            List<Integer> numbers = graph.get(number);
+            for (Integer i : numbers) {
+                indegree[i] -= 1;
+                if (indegree[i] == 0){
+                    q.add(i);
+                    indegree[i] = -1;
                 }
             }
         }
+        return ans.stream().mapToInt(Integer::intValue).toArray();
     }
+
 }
