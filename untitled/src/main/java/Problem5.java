@@ -6,7 +6,7 @@ import java.util.StringTokenizer;
 public class Problem5 {
     int n,t;
     int[] arr;
-    public void solution() throws IOException {
+    public int[] solution() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
 
@@ -37,5 +37,6 @@ public class Problem5 {
         for (int j = 0; j < n; j++){
             System.out.print(arr[j+i]+" ");
         }
+        return arr;
     }
 }
