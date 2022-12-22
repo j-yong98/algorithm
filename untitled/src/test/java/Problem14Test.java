@@ -1,9 +1,8 @@
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
+import java.io.*;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class Problem14Test {
 
@@ -19,8 +18,11 @@ class Problem14Test {
                 "5\n" +
                 "2 4\n" +
                 "1 3\n";
+        OutputStream outputStream = new ByteArrayOutputStream();
         System.setIn(new ByteArrayInputStream(p.getBytes()));
+        System.setOut(new PrintStream(outputStream));
         problem14.solution();
+        assertThat(outputStream.toString().trim()).isEqualTo("0");
     }
 
 }
