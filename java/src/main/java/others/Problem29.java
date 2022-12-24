@@ -82,6 +82,12 @@ public class Problem29 {
             }
         }
     }
+
+    /**
+     * 도시 n, 서로다른 k개의 도시 선택, 높이 차이가 u이상 d 이하 이동 가능 최대 도시 방문 수
+     * @return
+     * @throws IOException
+     */
     public int solution() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
