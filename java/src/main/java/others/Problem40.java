@@ -58,7 +58,7 @@ public class Problem40 {
         }
         System.out.println();
     }
-    public void solution() throws IOException {
+    public int solution() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
 
@@ -87,5 +87,6 @@ public class Problem40 {
         c2 = Integer.parseInt(st.nextToken()) - 1;
         bfs();
         System.out.println(Math.max(dist[0][r2][c2],dist[1][r2][c2]));
+        return Math.max(dist[0][r2][c2],dist[1][r2][c2]);
     }
 }
