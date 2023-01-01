@@ -3,57 +3,59 @@ package others;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 public class Problem56 {
     int n;
-    int[] arr;
+    List<Integer> list = new ArrayList<>();
     boolean isFinish = false;
-    private void print(int[] arr){
-        for (int i : arr){
+    private void print(List<Integer> list){
+        for (int i : list) {
             System.out.print(i);
         }
     }
+    private boolean isEqual(int s1, int e1, int s2, int e2){
+        for (int i = 0; i <= e1 - s1; i++){
+            if (list.get(s1 + i) != list.get(s2 + i)) return false;
+        }
+        return true;
+    }
     private boolean isPossible(){
-        for (int i = 1; i < n; i++){
-            for (int j = 0; j < n; j++){
-                int num1 = 0;
-                for (int k = j; k < j+i; k++) {
-                    if (k >= n) break;
-                    num1 *= 10;
-                    num1 += arr[k];
-                }
-                int num2 = 0;
-                for (int k = j + i; k < j + i + i; k++){
-                    if (k >= n) break;
-                    num2 *= 10;
-                    num2 += arr[k];
-                }
-                if (num1 != 0 && num2 != 0 && num1 == num2) return false;
-            }
+        int len = 1;
+        while (true){
+            int end1 = list.size()-1;
+            int start1 = end1 - len + 1;
+            int end2 = start1 - 1;
+            int start2 = end2 - len + 1;
+
+            if (start2 < 0) break;
+
+            if (isEqual(start1,end1, start2,end2)) return false;
+            len++;
         }
         return true;
     }
     private void f(int l){
         if (isFinish) return;
         if (l == n){
-            if (isPossible()){
-                print(arr);
-                isFinish = true;
-            }
+            print(list);
+            isFinish = true;
             return;
         }
         for (int i = 4; i <= 6; i++){
-            arr[l] = i;
-            f(l+1);
+            list.add(i);
+            if (isPossible()) {
+                f(l + 1);
+            }
+            list.remove(list.size()-1);
         }
     }
-    public void solution() throws IOException{
-        // 여기에 코드를 작성해주세요.
+    public void solution() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
         n = Integer.parseInt(st.nextToken());
-        arr = new int[n];
         f(0);
     }
 }
