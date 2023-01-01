@@ -44,7 +44,7 @@ public class Problem57 {
      * 이 때 최대로 움직일 수 있는 칸 수
      * @throws IOException
      */
-    public void solution() throws IOException {
+    public int solution() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
         n = Integer.parseInt(st.nextToken());
@@ -69,5 +69,6 @@ public class Problem57 {
         visited[r][c] = 1;
         f(r,c,0);
         System.out.println(ans);
+        return ans;
     }
 }
