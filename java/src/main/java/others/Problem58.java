@@ -19,7 +19,7 @@ public class Problem58 {
             f(pos+i,cnt+1);
         }
     }
-    public void solution() throws IOException {
+    public int solution() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
         n = Integer.parseInt(st.nextToken());
@@ -30,5 +30,6 @@ public class Problem58 {
         }
         f(0,0);
         System.out.println(ans == Integer.MAX_VALUE ? -1 : ans);
+        return ans == Integer.MAX_VALUE ? -1 : ans;
     }
 }
