@@ -5,3 +5,4 @@ build/
 !**/src/main/**
 !**/src/test/**
 .DS_Store
+*.hprof
