@@ -3,105 +3,60 @@ package baekjoon;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.StringTokenizer;
 
 public class BOJ15684 {
-    int n,m,h;
-
-    List<int[]> lines = new ArrayList<>();
-
-    List<int[]> selectedLines = new ArrayList<>();
-
+    int n, m, h;
+    int[][] arr;
     int ans = Integer.MAX_VALUE;
-
-    private List<int[]> merge(List<int[]> lines, List<int[]> selectedLines){
-        List<int[]> tmp = new ArrayList<>();
-        for (int i = 0; i < lines.size(); i++){
-            tmp.add(lines.get(i));
-        }
-        for (int i = 0; i < selectedLines.size(); i++){
-            tmp.add(selectedLines.get(i));
-        }
-        return tmp;
-    }
-    private boolean getRes(int[] res){
-        for (int i = 0; i < res.length; i++){
-            if (res[i] != i) return false;
+    public boolean check(int[][] map, int r, int c) {
+        for (int i = 1; i <= c; i++) {
+            int y = 1, x = i;
+            while (y <= r) {
+                if (map[y][x] == 1) x++;
+                else if (map[y][x - 1] == 1) x--;
+                y++;
+            }
+            if (x != i)
+                return false;
         }
         return true;
     }
-    private void print(int[] res){
-        for (int re : res) {
-            System.out.print(re+" ");
+    private void selectLines(int height, int cnt, int num) {
+        if (cnt == num) {
+            if (check(arr, h, n))
+                ans = Math.min(ans, cnt);
+            return ;
         }
-        System.out.println(selectedLines.size());
-    }
-    private boolean calc(){
-        List<int[]> mergeLines = merge(lines,selectedLines);
-        int[] res = new int[n];
-        for (int i = 0; i < n; i++){
-            res[i] = i;
-        }
-        Collections.sort(mergeLines, new Comparator<int[]>() {
-                @Override
-                public int compare(int[] o1, int[] o2) {
-                    if (o1[0] == o2[0]) return o1[1] - o2[1];
-                    return o1[0] - o2[0];
+        for (int i = height; i <= h; i++) {
+            for (int j = 1; j < n; j++) {
+                if (arr[i][j] == 0 && arr[i][j + 1] == 0 && arr[i][j - 1] == 0) {
+                    arr[i][j] = 1;
+                    selectLines(i, cnt + 1, num);
+                    arr[i][j] = 0;
                 }
-        });
-        for (int i = 0; i < mergeLines.size(); i++){
-            int line = mergeLines.get(i)[1];
-            int tmp = res[line];
-            res[line] = res[line+1];
-            res[line + 1] = tmp;
-        }
-//        print(res);
-        if (getRes(res)) return true;
-        return false;
-    }
-    private boolean contains(List<int[]> lines, int[] line){
-        for (int[] ints : lines) {
-            if (ints[0] == line[0] && ints[1] == line[1]) return true;
-        }
-        return false;
-    }
-    private void f(int l){
-        if (selectedLines.size() > 3 || selectedLines.size() >= ans) return;
-        if (l == h) {
-            if (calc()){
-                ans = Math.min(ans,selectedLines.size());
             }
-            return;
-        }
-        for (int i = 0; i < n-1;i++){
-            f(l+1);
-            int[] line = new int[]{l,i};
-            if (contains(lines,line)) continue;
-            selectedLines.add(line);
-            f(l+1);
-            selectedLines.remove(line);
         }
     }
-    public int solution() throws IOException {
+
+    /**
+     * 사다리 조작
+     */
+    public void solution() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
-
         n = Integer.parseInt(st.nextToken());
         m = Integer.parseInt(st.nextToken());
         h = Integer.parseInt(st.nextToken());
-
-        // a = floor, b ~ b+1 연결
-        for (int i = 0; i < m; i++){
+        arr = new int[h + 1][n + 1];
+        for (int i = 0; i < m; i++) {
             st = new StringTokenizer(br.readLine());
-            int a = Integer.parseInt(st.nextToken()) - 1;
-            int b = Integer.parseInt(st.nextToken()) - 1;
-            lines.add(new int[]{a,b});
+            int a = Integer.parseInt(st.nextToken());
+            int b = Integer.parseInt(st.nextToken());
+            arr[a][b] = 1;
         }
-        f(0);
-        if (ans == Integer.MAX_VALUE || ans > 3) {
-            ans = -1;
-        }
-        System.out.println(ans);
-        return ans;
+        for (int i = 0; i <= 3; i++)
+            selectLines(1,0, i);
+        System.out.println(ans == Integer.MAX_VALUE ? -1 : ans);
     }
 }
