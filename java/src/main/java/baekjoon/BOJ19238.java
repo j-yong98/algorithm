@@ -4,156 +4,138 @@ import java.io.*;
 import java.util.*;
 
 public class BOJ19238 {
-    class Passenger {
-        int[] depart;
-        int[] arrival;
+    class Pos implements Comparable<Pos>{
+        int r;
+        int c;
+        int cnt;
 
-        public Passenger(int[] depart, int[] arrival) {
-            this.depart = depart;
-            this.arrival = arrival;
+        public Pos() {
+        }
+
+        public Pos(int r, int c, int cnt) {
+            this.r = r;
+            this.c = c;
+            this.cnt = cnt;
+        }
+
+        @Override
+        public int compareTo(Pos o) {
+            if (this.cnt == o.cnt) {
+                if (this.r == o.r)
+                    return this.c - o.c;
+                return this.r - o.r;
+            }
+            return this.cnt - o.cnt;
         }
     }
 
-    final int WALL = 1;
+    final int BLOCK = -1;
     final int[] dy = {-1, 1, 0, 0};
     final int[] dx = {0, 0, 1, -1};
-
-    int n, m, f;
+    int n, m, k;
     int[][] arr;
-    int y, x;
-    int[] depart;
-    int[] departToArrival;
-    boolean[] visited;
-    List<Passenger> passengers = new ArrayList<>();
-
+    Pos[] des;
+    boolean[][] visited;
+    Pos taxi = new Pos();
     public void solution() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
         StringTokenizer st = new StringTokenizer(br.readLine());
-        int ans;
         n = Integer.parseInt(st.nextToken());
         m = Integer.parseInt(st.nextToken());
-        f = Integer.parseInt(st.nextToken());
-        arr = new int[n][n];
-        depart = new int[m];
-        departToArrival = new int[m];
-        visited = new boolean[m];
-        for (int i = 0; i < n; i++) {
+        k = Integer.parseInt(st.nextToken());
+        arr = new int[n + 1][n + 1];
+        visited = new boolean[n + 1][n + 1];
+        des = new Pos[m + 1];
+        for (int i = 1; i <= n; i++) {
             st = new StringTokenizer(br.readLine());
-            for (int j = 0; j < n; j++)
+            for (int j = 1; j <= n; j++) {
                 arr[i][j] = Integer.parseInt(st.nextToken());
+                arr[i][j] = arr[i][j] == 1 ? BLOCK : arr[i][j];
+            }
         }
         st = new StringTokenizer(br.readLine());
-        y = Integer.parseInt(st.nextToken()) - 1;
-        x = Integer.parseInt(st.nextToken()) - 1;
-        for (int i = 0; i < m; i++) {
+        taxi.r = Integer.parseInt(st.nextToken());
+        taxi.c = Integer.parseInt(st.nextToken());
+        for (int i = 1; i <= m; i++) {
             st = new StringTokenizer(br.readLine());
-            int s1 = Integer.parseInt(st.nextToken()) - 1;
-            int s2 = Integer.parseInt(st.nextToken()) - 1;
-            int e1 = Integer.parseInt(st.nextToken()) - 1;
-            int e2 = Integer.parseInt(st.nextToken()) - 1;
-            passengers.add(new Passenger(new int[]{s1, s2}, new int[]{e1, e2}));
+            int r = Integer.parseInt(st.nextToken());
+            int c = Integer.parseInt(st.nextToken());
+            arr[r][c] = i;
+            r = Integer.parseInt(st.nextToken());
+            c = Integer.parseInt(st.nextToken());
+            des[i] = new Pos(r, c, 0);
         }
-        ans = getFuel();
-        bw.write(ans + "\n");
+        for (int i = 0; i < m; i++) {
+            int passenger = findPassenger();
+            k -= taxi.cnt;
+            if (k <= 0 || passenger == -1) {
+                k = -1;
+                break ;
+            }
+
+            int fuel = goDest(passenger);
+            if (k < fuel || fuel == -1) {
+                k = -1;
+                break ;
+            }
+            k += fuel;
+        }
+        bw.write(k + "\n");
         bw.flush();
         bw.close();
     }
 
-    private int getFuel() {
-        List<int[]> start = new ArrayList<>();
-        for (int i = 0; i < m; i++) {
-            int[] d = passengers.get(i).depart;
-            int[] a = passengers.get(i).arrival;
-            departToArrival[i] = getDist(d, a);
-        }
-
-        for (int i = 0; i < m; i++) {
-            int dist = getDist(new int[]{y, x}, passengers.get(i).depart);
-            if (dist == -1)
-                continue;
-            start.add(new int[]{dist, i});
-        }
-        if (start.size() == 0)
-            return -1;
-
-        Collections.sort(start, new Comparator<int[]>() {
-            @Override
-            public int compare(int[] o1, int[] o2) {
-                if (o1[0] == o2[0]) {
-                    Passenger p1 = passengers.get(o1[1]);
-                    Passenger p2 = passengers.get(o2[1]);
-                    if (p1.depart[0] == p2.depart[0])
-                        return Integer.compare(p1.depart[1], p2.depart[1]);
-                    return Integer.compare(p1.depart[0], p2.depart[0]);
+    private int findPassenger() {
+        Deque<Pos> q = new ArrayDeque<>();
+        PriorityQueue<Pos> pq = new PriorityQueue<>();
+        for (int i = 1; i <= n; i++)
+            Arrays.fill(visited[i], false);
+        taxi.cnt = 0;
+        q.add(taxi);
+        visited[taxi.r][taxi.c] = true;
+        if (arr[taxi.r][taxi.c] > 0)
+            return arr[taxi.r][taxi.c];
+        while (!q.isEmpty()) {
+            Pos pos = q.pollFirst();
+            for (int i = 0; i < 4; i++) {
+                int y = pos.r + dy[i];
+                int x = pos.c + dx[i];
+                if (inRange(y, x) && !visited[y][x] && arr[y][x] != BLOCK) {
+                    if (arr[y][x] > 0)
+                        pq.add(new Pos(y, x, pos.cnt + 1));
+                    q.add(new Pos(y, x, pos.cnt + 1));
+                    visited[y][x] = true;
                 }
-                return o1[0] - o2[0];
             }
-        });
-
-        for (int i = 0; i < start.size(); i++) {
-            int[] s = start.get(i);
-            for (int j = 0; j < m; j++)
-                visited[i] = false;
-            int fuel = f - s[0] - departToArrival[s[1]];
-            visited[s[1]] = true;
-            int res = move(1, s[1], fuel);
-            if (res != -1)
-                return res;
+        }
+        if (!pq.isEmpty()) {
+            taxi = pq.poll();
+            return arr[taxi.r][taxi.c];
         }
         return -1;
     }
 
-    private int move(int cnt, int idx, int fuel) {
-        if (fuel < 0)
-            return -1;
-        if (cnt == m)
-            return fuel + 2 * departToArrival[idx];
-        fuel += 2 * departToArrival[idx];
-        int min = Integer.MAX_VALUE;
-        int next = -1;
-        for (int i = 0; i < m; i++) {
-            if (visited[i])
-                continue;
-            int dist = getDist(passengers.get(idx).arrival, passengers.get(i).depart);
-            if (dist == -1)
-                continue;
-            if (dist < min) {
-                min = dist;
-                next = i;
-            }
-            else if (dist == min) {
-                int[] p1 = passengers.get(next).depart;
-                int[] p2 = passengers.get(i).depart;
-                if (p1[0] > p2[0])
-                    next = i;
-                else if (p1[0] == p2[0]) {
-                    if (p1[1] > p2[1])
-                        next = i;
-                }
-            }
-        }
-        if (next == -1)
-            return -1;
-        visited[next] = true;
-        return move(cnt + 1, next, fuel - min - departToArrival[next]);
-    }
-
-    private int getDist(int[] depart, int[] arrival) {
-        Deque<int[]> q = new ArrayDeque<>();
-        boolean[][] checked = new boolean[n][n];
-        q.add(new int[]{depart[0], depart[1], 0});
-        checked[depart[0]][depart[1]] = true;
+    private int goDest(int p) {
+        Deque<Pos> q = new ArrayDeque<>();
+        for (int i = 1; i <= n; i++)
+            Arrays.fill(visited[i], false);
+        taxi.cnt = 0;
+        q.add(taxi);
+        visited[taxi.r][taxi.c] = true;
         while (!q.isEmpty()) {
-            int[] pos = q.pollFirst();
-            if (arrival[0] == pos[0] && arrival[1] == pos[1])
-                return pos[2];
+            Pos pos = q.pollFirst();
+            if (pos.r == des[p].r && pos.c == des[p].c) {
+                arr[taxi.r][taxi.c] = 0;
+                taxi = pos;
+                return taxi.cnt;
+            }
             for (int i = 0; i < 4; i++) {
-                int yy = pos[0] + dy[i];
-                int xx = pos[1] + dx[i];
-                if (inRange(yy, xx) && !checked[yy][xx] && arr[yy][xx] != WALL) {
-                    checked[yy][xx] = true;
-                    q.add(new int[]{yy, xx, pos[2] + 1});
+                int y = pos.r + dy[i];
+                int x = pos.c + dx[i];
+                if (inRange(y, x) && !visited[y][x] && arr[y][x] != BLOCK) {
+                    q.add(new Pos(y, x, pos.cnt + 1));
+                    visited[y][x] = true;
                 }
             }
         }
@@ -161,6 +143,6 @@ public class BOJ19238 {
     }
 
     private boolean inRange(int y, int x) {
-        return y >= 0 && y < n && x >= 0 && x < n;
+        return y >= 1 && y <= n && x >= 1 && x <= n;
     }
 }
