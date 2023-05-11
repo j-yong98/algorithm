@@ -55,6 +55,7 @@ public class BOJ17472 {
                 }
             }
         }
+
         bw.write(getMinLen(size) + "\n");
         bw.flush();
         bw.close();
