@@ -9,7 +9,7 @@ import java.util.Scanner;
 public class BOJ1793 {
     static BigInteger[] dp = new BigInteger[251];
     /**
-     * 문제이름
+     * 타일링
      */
     public void solution() throws IOException {
         Scanner sc = new Scanner(System.in);
