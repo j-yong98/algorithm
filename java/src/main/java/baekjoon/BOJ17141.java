@@ -1,102 +1,97 @@
 package baekjoon;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
 
 public class BOJ17141 {
-    final int CAN_VIRUS = 2;
-    final int VIRUS = 3;
+    final int MAX = 1_000_000_000;
+    final int BLANK = 0;
+    final int WALL = 1;
+    final int VIRUS = 2;
+    final int[] dy = {-1, 1, 0, 0};
+    final int[] dx = {0, 0, 1, -1};
     int n, m;
     int[][] arr;
-    int[][] dist;
-    int[] dy = {1, -1, 0, 0};
-    int[] dx = {0, 0, 1, -1};
-    List<int[]> canVirusPos = new ArrayList<>();
-    List<int[]> virusPos = new ArrayList<>();
-    Queue<int[]> q = new LinkedList<>();
-    int ans = Integer.MAX_VALUE;
-    private void init() {
+    List<int[]> virusList = new ArrayList<>();
+    List<Integer> selected = new ArrayList<>();
+    int ans = MAX;
+
+    /**
+     * 연구소 2
+     */
+    public void solution() throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        String[] line = br.readLine().split(" ");
+        n = Integer.parseInt(line[0]);
+        m = Integer.parseInt(line[1]);
+        arr = new int[n][n];
         for (int i = 0; i < n; i++) {
+            line = br.readLine().split(" ");
             for (int j = 0; j < n; j++) {
-                dist[i][j] = -1;
+                arr[i][j] = Integer.parseInt(line[j]);
+                if (arr[i][j] == VIRUS)
+                    virusList.add(new int[]{i, j});
             }
         }
+        dfs(0, 0);
+        ans = ans == MAX ? -1 : ans;
+        bw.write(ans + "\n");
+        bw.flush();
+        bw.close();
+        br.close();
     }
-    private boolean inRange(int y, int x) {
-        return y >= 0 && y < n && x >= 0 && x < n;
-    }
-    private void spread() {
-        for (int[] pos : virusPos) {
-            dist[pos[0]][pos[1]] = 0;
-            q.add(new int[]{pos[0], pos[1]});
+
+    private void dfs(int l, int cnt) {
+        if (cnt == m) {
+            ans = Math.min(ans, bfs());
+            return;
         }
+        if (l == virusList.size())
+            return;
+        selected.add(l);
+        dfs(l + 1, cnt + 1);
+        selected.remove(selected.size() - 1);
+        dfs(l + 1, cnt);
+    }
+
+    private int bfs() {
+        Deque<int[]> q = new ArrayDeque<>();
+        int[][] dist = new int[n][n];
+
+        for (int i = 0; i < n; i++)
+            Arrays.fill(dist[i], MAX);
+
+        for (Integer num : selected) {
+            int[] pos = virusList.get(num);
+            dist[pos[0]][pos[1]] = 0;
+            q.add(pos);
+        }
+
         while (!q.isEmpty()) {
-            int[] pos = q.poll();
+            int[] pos = q.pollFirst();
             for (int i = 0; i < 4; i++) {
                 int y = pos[0] + dy[i];
                 int x = pos[1] + dx[i];
-                if (inRange(y, x) && (arr[y][x] == 0 || arr[y][x] == 2) && dist[y][x] == -1) {
+                if (inRange(y, x) && arr[y][x] != WALL && dist[y][x] == MAX) {
                     q.add(new int[]{y, x});
                     dist[y][x] = dist[pos[0]][pos[1]] + 1;
                 }
             }
         }
-    }
-    private void printMap() {
+        int max = 0;
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                System.out.print(dist[i][j] == - 1 ? "N " : dist[i][j] + " ");
+                if (arr[i][j] == WALL) {
+                    continue;
+                }
+                max = Math.max(max, dist[i][j]);
             }
-            System.out.println();
         }
-        System.out.println();
+        return max;
     }
-    private int getMinVal() {
-        int val = 0;
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                if (arr[i][j] == 0 && dist[i][j] == -1)
-                    return Integer.MAX_VALUE;
-                val = Math.max(val, dist[i][j]);
-            }
-        }
-        return val;
-    }
-    private void putVirus(int seq) {
-        if (seq == canVirusPos.size()) {
-            if (virusPos.size() == m) {
-                init();
-                spread();
-                ans = Math.min(ans, getMinVal());
-            }
-            return;
-        }
-        putVirus(seq + 1);
-        virusPos.add(canVirusPos.get(seq));
-        putVirus(seq + 1);
-        virusPos.remove(virusPos.size() - 1);
-    }
-    /**
-     * 연구소2
-     */
-    public void solution() throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        n = Integer.parseInt(st.nextToken());
-        m = Integer.parseInt(st.nextToken());
-        arr = new int[n][n];
-        dist = new int[n][n];
-        for (int i = 0; i < n; i++) {
-            st = new StringTokenizer(br.readLine());
-            for (int j = 0; j < n; j++) {
-                arr[i][j] = Integer.parseInt(st.nextToken());
-                if (arr[i][j] == 2)
-                    canVirusPos.add(new int[]{i, j});
-            }
-        }
-        putVirus(0);
-        System.out.println(ans == Integer.MAX_VALUE ? -1 : ans);
+
+    private boolean inRange(int y, int x) {
+        return y >= 0 && y < n && x >= 0 && x < n;
     }
 }
