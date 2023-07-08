@@ -31,11 +31,8 @@ public class BOJ17298 {
             }
             s.push(new int[]{num, i});
         }
-        Arrays.stream(ans).forEach(System.out::print);
-        /*for (int i = 0; i < n; i++)
+        for (int i = 0; i < n; i++)
             bw.write(ans[i] + " ");
-
-         */
         bw.write("\n");
         bw.flush();
         bw.close();
