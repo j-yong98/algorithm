@@ -18,14 +18,13 @@ public class BOJ1074 {
         r = Integer.parseInt(st.nextToken());
         c = Integer.parseInt(st.nextToken());
         Z(0, 0, 1 << N);
-//        System.out.println(cnt);
         br.close();
     }
 
     private void Z(int y, int x, int size) {
         if (y == r && x == c) {
             System.out.println(cnt);
-            System.exit(0);
+            return;
         }
         if (size == 1) {
             cnt++;
