@@ -5,7 +5,8 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-class BOJ16987Test {
+class
+BOJ16987Test {
     @Test
     void solution() throws IOException {
         BOJ16987 boj16987 = new BOJ16987();
