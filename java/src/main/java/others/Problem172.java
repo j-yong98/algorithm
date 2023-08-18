@@ -56,7 +56,7 @@ public class Problem172 {
             return dp[now][visited];
 
         dp[now][visited] = MAX;
-        for (int i = 1; i <= N; i++) {
+        for (int i = 0; i <= N; i++) {
             if (i == now) continue;
             if ((visited & (1 << i)) != 0) continue;
             dp[now][visited] = Math.min(dp[now][visited], getMinDist(i, visited | (1 << i)) + getDist(pos[now], pos[i]));
